@@ -1,14 +1,13 @@
 from fasthtml.common import *
 from routing import app, rt
 import BackEnd
+
 company = BackEnd.company
 
-@rt('/payment')
-def payment_page():
-    # สร้าง instance ของ Payment แบบ static สำหรับตัวอย่าง
+@rt('/payment', methods=["GET"])
+def payment_page(reservation_id: str):
+    # สร้าง instance ของ Payment (ในระบบจริงคุณอาจดึงข้อมูลเพิ่มเติมจาก reservation_id)
     payment_instance = BackEnd.Payment("Pay1", credit="1234567890")
-    
-    # ดึงข้อมูลจาก instance
     payment_id = payment_instance.get_id()
     payment_method = payment_instance.check_method_payment()
     
@@ -22,7 +21,6 @@ def payment_page():
                 background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
                 background-size: cover;
             }
-            /* Header ด้านบน */
             .header {
                 width: 100%;
                 background: rgba(0,0,0,0.5);
@@ -36,7 +34,6 @@ def payment_page():
                 font-size: 42px;
                 letter-spacing: 2px;
             }
-            /* ส่วนเนื้อหาหลัก */
             .content {
                 max-width: 600px;
                 margin: 100px auto 40px auto;
@@ -47,10 +44,6 @@ def payment_page():
             }
             h2, h3, p {
                 margin: 0 0 15px 0;
-            }
-            .info {
-                font-size: 18px;
-                color: #333;
             }
             button {
                 background: #0052d4;
@@ -65,22 +58,31 @@ def payment_page():
                 background: #003bb5;
             }
         """),
-        # Header Bar
         Div(
             H2("DRIVY Payment Dashboard", style="color: #fff; margin: 0;"),
             _class="header"
         ),
-        # Main Content
         Body(
             Div(
                 H3("Payment Details"),
-                P("Payment ID: " + payment_id, _class="info"),
-                P("Payment Method: " + payment_method, _class="info"),
-                Button("Process Payment", type="button"),
+                P("Payment ID: " + payment_id),
+                P("Payment Method: " + payment_method),
+                # ฟอร์มชำระเงินส่ง reservation_id ไปด้วย
+                Form(
+                    Input(type="hidden", name="reservation_id", value=reservation_id),
+                    Button("ชำระเงิน", type="submit"),
+                    action="/payment/process", method="POST"
+                ),
                 _class="content"
             ),
             style="padding: 20px; min-height: 100vh;"
         )
     )
+
+@rt('/payment/process', methods=["POST"])
+def process_payment(reservation_id: str):
+    # ที่นี่คุณสามารถเพิ่มโค้ดประมวลผลการชำระเงินหรืออัพเดตสถานะการจองได้
+    # หลังจากชำระเงินสำเร็จ Redirect ไปที่หน้า search (ประวัติการเช่า)
+    return RedirectResponse("/search", status_code=302)
 
 serve()

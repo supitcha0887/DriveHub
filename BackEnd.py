@@ -268,18 +268,23 @@ class Payment:
 
 # ประกัน --------------------------------------------------------------------------
 class Insurance:
-    def __init__(self, id, name, detail):
+    def __init__(self, id, name, detail, price):
         self.__id = id
         self.__name = name
         self.__detail = detail
+        self.__price = price
 
     def get_id(self):
         return self.__id    
+    
     def get_name(self):
         return self.__name
     
     def get_detail(self):
         return self.__detail
+    
+    def get_price(self):
+        return self.__price 
 
 # controller -----------------------------------------------------------------------
 class Company:

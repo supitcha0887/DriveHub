@@ -1,6 +1,7 @@
 from fasthtml.common import *
 from routing import app, rt
 import BackEnd
+
 company = BackEnd.company
 
 @rt('/showcar/{model}/{start_date}/{end_date}', methods=["GET"])
@@ -21,7 +22,6 @@ def showcar(model: str, start_date: str, end_date: str):
                 background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
                 background-size: cover;
             }
-            /* Header ด้านบน */
             .header {
                 width: 100%;
                 background: rgba(0,0,0,0.5);
@@ -38,7 +38,6 @@ def showcar(model: str, start_date: str, end_date: str):
                 font-size: 42px;
                 letter-spacing: 2px;
             }
-            /* ส่วนเนื้อหาหลัก */
             .content {
                 margin-top: 100px;
                 display: grid;
@@ -46,7 +45,6 @@ def showcar(model: str, start_date: str, end_date: str):
                 gap: 20px;
                 padding: 20px;
             }
-            /* Card สำหรับแต่ละรถ */
             .card {
                 background: #fff;
                 border-radius: 10px;
@@ -77,13 +75,6 @@ def showcar(model: str, start_date: str, end_date: str):
                 margin: 5px 0;
                 font-size: 16px;
             }
-            .review-section {
-                max-height: 100px;
-                overflow-y: auto;
-                text-align: left;
-                margin-top: 10px;
-                font-size: 14px;
-            }
             .select-btn {
                 margin-top: 15px;
                 background: #0052d4;
@@ -92,18 +83,10 @@ def showcar(model: str, start_date: str, end_date: str):
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                outline: none;
                 transition: background 0.3s;
             }
             .select-btn:hover {
                 background: #003bb5;
-            }
-            .select-btn:active {
-                background: #0052d4;
-            }
-            /* Form ภายใน card */
-            form {
-                margin-top: 10px;
             }
         """),
         Div(
@@ -112,13 +95,11 @@ def showcar(model: str, start_date: str, end_date: str):
                 H2("DRIVY", style="margin: 0;"),
                 _class="header"
             ),
-            # ส่วนเนื้อหาหลัก แสดง card รถ
+            # แสดงรายชื่อรถเป็น card
             Div(
                 *[ 
                     Div(
-                        # ภาพรถ
                         Img(src=car.get_image(), alt="Car Image"),
-                        # รายละเอียดรถ
                         Div(
                             H3(car.get_model()),
                             P("License: " + car.get_licensecar()),
@@ -128,19 +109,13 @@ def showcar(model: str, start_date: str, end_date: str):
                             P("Seat Count: " + car.get_seat_count()),
                             P("Start: " + start_date),
                             P("End: " + end_date),
-                            P("Average Rating: " + str(round(car.cal_rating(), 1))),
-                            Div(
-                                *[P("Review: " + rev.get_comment() + " (Date: " + rev.get_date() + ")", style="margin: 2px 0;")
-                                  for rev in car.get_reviews()],
-                                _class="review-section"
-                            ),
-                            # Form สำหรับเลือกรถ (ส่งไปหน้า /reservation)
+                            # ปุ่ม Select เปลี่ยนไปยังหน้า Reservation Form
                             Form(
                                 Input(type="hidden", name="car_id", value=car.get_id()),
                                 Input(type="hidden", name="start_date", value=start_date),
                                 Input(type="hidden", name="end_date", value=end_date),
                                 Button("Select", type="submit", _class="select-btn"),
-                                action="/reservation", method="POST"
+                                action="/reservation/form", method="GET"
                             ),
                             _class="card-details"
                         ),
