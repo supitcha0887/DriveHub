@@ -46,7 +46,7 @@ def payment_page(reservation_id: str):
             }
             .content {
                 max-width: 600px;
-                margin: 100px auto;
+                margin: 0 auto;  /* ลบ margin-top ที่เป็น 100px ออก */
                 background: rgba(255,255,255,0.95);
                 padding: 20px;
                 border-radius: 10px;
@@ -68,7 +68,9 @@ def payment_page(reservation_id: str):
             }
         """),
         Div(
+            Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
             H2("DRIVY Payment Dashboard", style="color: #fff; margin: 0;"),
+            style="display: flex; align-items: center;",
             _class="header"
         ),
         Body(

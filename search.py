@@ -9,6 +9,7 @@ def search():
     search_section = Div(
         Div(
             Div(
+                Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
                 H2("DRIVY", style="color: #FFF; margin: 0; font-size: 42px; letter-spacing: 2px;"),
                 style="display: flex; align-items: center;"
             ),
@@ -136,7 +137,7 @@ def search():
             _class="header"
         ),
         Div(
-            H3("ยินดีต้อนรับ " + current_user.get_username(), style="color: #333;"),
+            H3("ยินดีต้อนรับ " , style="color: #333;"),
             *reservation_list,
             _class="content",
             style="padding: 20px;"

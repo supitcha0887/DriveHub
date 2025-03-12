@@ -120,7 +120,9 @@ def get(success_message=None, error_message=None):
         """),
         Div(
             Div(
+                Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
                 H2("DRIVY", style="margin: 0;"),
+                style="display: flex; align-items: center;",
                 _class="header"
             ),
             Body(

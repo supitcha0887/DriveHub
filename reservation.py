@@ -162,9 +162,6 @@ def save_reservation(car_id: str, start_date: str, end_date: str,
     )
     company.add_reservation(reservation)
     
-    if driver_assigned:
-        reservation.approve_driver()
-    
     return RedirectResponse("/payment?reservation_id=" + reservation.get_id(), status_code=302)
 
 # ตรวจสอบสถานะ Reservation (ตรวจสอบเฉพาะ admin approval)
