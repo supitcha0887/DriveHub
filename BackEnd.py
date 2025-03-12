@@ -1,3 +1,6 @@
+import os
+import json
+import time
 # รถ -----------------------------------------------------------------------
 class Car:
     def __init__(self, id, model, licensecar, price, status, color, seat_count, image=None,):
@@ -277,6 +280,7 @@ class Company:
         self.__promotions = []
         self.__location = []
         self.__cars = []        # รวมรถทั้งหมด
+        self.load_users()
     
     def add_user(self, user: User):
         self.__users.append(user)
@@ -358,6 +362,33 @@ class Company:
                 print(f"Login successful: {user.get_role()}")  # Debugging
                 return user.get_role()
         return "again, please"
+    
+    def load_users(self):
+        if os.path.exists("users.json"):
+            with open("users.json", "r") as f:
+                try:
+                    data = json.load(f)
+                    for user_data in data:
+                        role = user_data.get("role")
+                        uid = user_data.get("id")
+                        username = user_data.get("username")
+                        password = user_data.get("password")
+                        if role == "admin":
+                            new_user = Admin(uid, username, password, role)
+                        elif role == "driver":
+                            licenseDrive = user_data.get("licenseDrive", "default_driver_license")
+                            new_user = Driver(uid, username, password, role, licenseDrive)
+                        elif role in ["user", "renter"]:
+                            licenseUser = user_data.get("licenseUser", "default_license")
+                            new_user = User(uid, username, password, role, licenseUser)
+                        else:
+                            continue
+                        self.__users.append(new_user)
+                    print("Loaded users from file.")
+                except Exception as e:
+                    print("Error loading users:", e)
+        else:
+            print("No users file found; starting with empty user list.")
 
     def register(self, username, password, role):
         print(f"Attempting registration: username={username}, role={role}")  # Debugging
@@ -374,10 +405,55 @@ class Company:
                 new_user = User(new_id, username, password, role, "default_license")
         else:
             return False, "Invalid role selected"
-
         self.__users.append(new_user)
         print(f"Registration successful: {new_user.get_username()}")  # Debugging
         return True, "Registration successful"
+        
+    def load_users(self):
+        if os.path.exists("users.json"):
+            with open("users.json", "r") as f:
+                try:
+                    data = json.load(f)
+                    for user_data in data:
+                        role = user_data.get("role")
+                        uid = user_data.get("id")
+                        username = user_data.get("username")
+                        password = user_data.get("password")
+                        if role == "admin":
+                            new_user = Admin(uid, username, password, role)
+                        elif role == "driver":
+                            licenseDrive = user_data.get("licenseDrive", "default_driver_license")
+                            new_user = Driver(uid, username, password, role, licenseDrive)
+                        elif role in ["user", "renter"]:
+                            licenseUser = user_data.get("licenseUser", "default_license")
+                            new_user = User(uid, username, password, role, licenseUser)
+                        else:
+                            continue
+                        self.__users.append(new_user)
+                    print("Loaded users from file.")
+                except Exception as e:
+                    print("Error loading users:", e)
+        else:
+            print("No users file found; starting with empty user list.")
+        
+    def save_users(self):
+        data = []
+        for user in self.__users:
+            d = {
+                "id": user.get_id(),
+                "username": user.get_username(),
+                "password": user.get_password(),
+                "role": user.get_role()
+            }
+            if user.get_role() == "driver":
+                d["licenseDrive"] = user.get_licenseDrive()
+            elif user.get_role() in ["user", "renter"]:
+                d["licenseUser"] = user.get_licenseUser()
+            data.append(d)
+        with open("users.json", "w") as f:
+            json.dump(data, f)
+        print("Saved users to file.")
+        
 
 company = Company()
 
