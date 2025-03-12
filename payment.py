@@ -6,6 +6,20 @@ company = BackEnd.company
 
 @rt('/payment', methods=["GET"])
 def payment_page(reservation_id: str):
+    # ค้นหา Reservation ที่ตรงกับ reservation_id
+    reservation = None
+    for res in company.get_reservations():
+        if res.get_id() == reservation_id:
+            reservation = res
+            break
+
+    if reservation:
+        insurance_cost = reservation.get_insurance().get_price() if reservation.get_insurance() else 0
+        total_cost = reservation.get_price()  # ราคาที่คำนวณแล้วรวมส่วนลดและเบี้ยประกัน
+    else:
+        insurance_cost = 0
+        total_cost = 0
+
     return Container(
         Style("""
             html, body {
@@ -13,7 +27,7 @@ def payment_page(reservation_id: str):
                 font-family: 'Roboto', sans-serif;
                 margin: 0;
                 padding: 0;
-                background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+                background: linear-gradient(135deg, #2196F3, #21CBF3);
                 background-size: cover;
             }
             .header {
@@ -22,6 +36,7 @@ def payment_page(reservation_id: str):
                 padding: 25px;
                 border-bottom: 2px solid rgba(0,0,0,0.3);
                 text-align: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             }
             .header h2 {
                 color: #fff;
@@ -31,21 +46,17 @@ def payment_page(reservation_id: str):
             }
             .content {
                 max-width: 600px;
-                margin: 100px auto 40px auto;
-                background: #fff;
+                margin: 100px auto;
+                background: rgba(255,255,255,0.95);
                 padding: 20px;
                 border-radius: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             }
-            label {
-                font-weight: bold;
-            }
-            .payment-option {
-                margin-bottom: 10px;
-            }
+            label { font-weight: bold; }
+            .payment-option { margin-bottom: 10px; }
             button {
-                background: #0052d4;
-                color: white;
+                background: linear-gradient(45deg, #2196F3, #21CBF3);
+                color: #fff;
                 border: none;
                 padding: 10px 20px;
                 border-radius: 5px;
@@ -53,7 +64,7 @@ def payment_page(reservation_id: str):
                 transition: background 0.3s;
             }
             button:hover {
-                background: #003bb5;
+                background: linear-gradient(45deg, #1976D2, #1E88E5);
             }
         """),
         Div(
@@ -62,8 +73,10 @@ def payment_page(reservation_id: str):
         ),
         Body(
             Div(
-                H3("Payment Details"),
-                P("Reservation ID: " + reservation_id),
+                H3("Payment Details", style="margin-bottom:15px;"),
+                P("Reservation ID: " + reservation_id, style="font-size:18px;"),
+                P("Insurance Cost: $" + str(insurance_cost), style="font-size:18px;"),
+                P("Total Cost: $" + str(total_cost), style="font-size:18px; font-weight:bold;"),
                 Form(
                     Div(
                         Label("เลือกวิธีการชำระเงิน:"), 
@@ -88,7 +101,6 @@ def payment_page(reservation_id: str):
 
 @rt('/payment/process', methods=["POST"])
 def process_payment(reservation_id: str, payment_method: str):
-    # สร้าง Payment instance ตามวิธีการชำระเงินที่เลือก
     if payment_method == "qrcode":
          payment_instance = BackEnd.Payment("Pay" + reservation_id, qrcode="QRCodeData")
     elif payment_method == "cash":
@@ -98,12 +110,10 @@ def process_payment(reservation_id: str, payment_method: str):
     
     company.add_payment(payment_instance)
     
-    # ทำเครื่องหมาย Reservation ว่าชำระเงินแล้ว
     for res in company.get_reservations():
          if res.get_id() == reservation_id:
               res.mark_paid()
               break
-    # หลังจากชำระเงินแล้ว Redirect ไปที่หน้า status เพื่อแสดงสถานะการอนุมัติ
     return RedirectResponse("/reservation/status?reservation_id=" + reservation_id, status_code=302)
 
 serve()

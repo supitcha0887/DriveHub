@@ -13,14 +13,15 @@ def get(success_message=None, error_message=None):
             html, body {
                 height: 100%;
                 font-family: 'Roboto', sans-serif;
-            }
-            body {
-                background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
-                background-size: cover;
-                min-height: 100vh;
                 margin: 0;
                 padding: 0;
-                color: #333;
+                background: linear-gradient(135deg, #2196F3, #21CBF3);
+                background-size: cover;
+                animation: bgAnimation 8s infinite alternate;
+            }
+            @keyframes bgAnimation {
+                from { filter: brightness(1); }
+                to { filter: brightness(1.1); }
             }
             .header {
                 width: 100%;
@@ -33,6 +34,7 @@ def get(success_message=None, error_message=None):
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             }
             .header h2 {
                 color: #fff;
@@ -60,10 +62,10 @@ def get(success_message=None, error_message=None):
             }
             .form-section {
                 display: none;
-                background: #fff;
+                background: rgba(255,255,255,0.95);
                 padding: 40px;
                 border-radius: 10px;
-                box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
                 max-width: 400px;
                 width: 90%;
                 transition: opacity 0.5s ease;
@@ -90,16 +92,15 @@ def get(success_message=None, error_message=None):
                 padding: 12px;
                 border: none;
                 border-radius: 5px;
-                background: #0052d4;
+                background: linear-gradient(45deg, #2196F3, #21CBF3);
                 color: #fff;
                 font-size: 16px;
                 cursor: pointer;
                 transition: background 0.3s;
             }
             .form-section button:hover {
-                background: #003bb5;
+                background: linear-gradient(45deg, #1976D2, #1E88E5);
             }
-            /* Message container สำหรับข้อความเด่น */
             .message-container {
                 background: rgba(0, 0, 0, 0.7);
                 color: #fff;
@@ -124,17 +125,14 @@ def get(success_message=None, error_message=None):
             ),
             Body(
                 Div(
-                    # แสดงข้อความเด่นเมื่อสมัครหรือเข้าสู่ระบบสำเร็จ
                     success_message and Div(success_message, _class="message-container"),
                     error_message and Div(error_message, _class="message-container"),
-                    
                     H3("LOGIN / REGISTER", style="font-size: 32px; text-align: center; margin-bottom: 20px; color: #fff;"),
                     Div(
                         Button("Login", type="button", id="loginBtn", _class="tab-btn active"),
                         Button("Register", type="button", id="registerBtn", _class="tab-btn"),
                         style="text-align: center; margin-bottom: 20px;"
                     ),
-                    # ฟอร์มสำหรับ Login
                     Form(
                         Div(
                             Div(Label("Username"), Input(type="text", id="login_username", name="login_username", required=True)),
@@ -146,7 +144,6 @@ def get(success_message=None, error_message=None):
                         _class="form-section active",
                         id="login-section"
                     ),
-                    # ฟอร์มสำหรับ Register
                     Form(
                         Div(
                             Div(Label("Username"), Input(type="text", id="register_username", name="register_username", required=True)),
@@ -174,14 +171,12 @@ def get(success_message=None, error_message=None):
             )
         ),
         Script("""
-            // เมื่อกดปุ่ม Login ให้แสดงฟอร์ม Login
             document.getElementById('loginBtn').addEventListener('click', function() {
                 document.getElementById('loginBtn').classList.add('active');
                 document.getElementById('registerBtn').classList.remove('active');
                 document.getElementById('login-section').classList.add('active');
                 document.getElementById('register-section').classList.remove('active');
             });
-            // เมื่อกดปุ่ม Register ให้แสดงฟอร์ม Register
             document.getElementById('registerBtn').addEventListener('click', function() {
                 document.getElementById('registerBtn').classList.add('active');
                 document.getElementById('loginBtn').classList.remove('active');
