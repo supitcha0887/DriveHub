@@ -130,6 +130,7 @@ class Reservation:
         self.__admin_approved = False
         self.__driver_approved = False
         self.__promotion = promotion
+        self.__paid = False
 
     def get_id(self):
         return self.__id
@@ -190,6 +191,12 @@ class Reservation:
         base_price = self.__car.get_price()
         discount = base_price * (promotion.get_percent() / 100)
         self.__price = base_price - discount
+
+    def mark_paid(self):
+        self.__paid = True
+
+    def is_paid(self):
+        return self.__paid
 
 # เก็บส่วนลด -----------------------------------------------------------------------
 class Promotion:

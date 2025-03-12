@@ -61,10 +61,13 @@ def search():
         style="margin-top: 120px;"  # ให้มีระยะห่างจาก header
     )
     
-    # ส่วนของ "ประวัติการจองของฉัน" พร้อมแสดงข้อมูล rating และ comment
+    # ส่วนของ "ประวัติการจองของฉัน"
     # (ในระบบจริงควรดึงข้อมูลผู้ใช้จาก session แต่ที่นี้ใช้ user1 เป็นตัวอย่าง)
     current_user = BackEnd.User(3001, "user1", "pass1", "renter", "U-111")
-    my_reservations = [res for res in company.get_reservations() if res.get_renter().get_username() == current_user.get_username()]
+    my_reservations = [
+        res for res in company.get_reservations() 
+        if res.get_renter().get_username() == current_user.get_username()
+    ]
 
     reservation_list = []
     if my_reservations:
@@ -72,8 +75,25 @@ def search():
             car = res.get_car()
             # สร้างรายการรีวิวจากรถ
             reviews_display = Div(
-                *[P("Review: " + rev.get_comment() + " (Date: " + rev.get_date() + ")") for rev in car.get_reviews()]
+                *[
+                    P("Review: " + rev.get_comment() + " (Date: " + rev.get_date() + ")")
+                    for rev in car.get_reviews()
+                ]
             )
+
+            # ตรวจสอบสถานะอนุมัติและการชำระเงิน
+            if res.is_admin_approved() and res.is_driver_approved():
+                if not res.is_paid():
+                    payment_status = A(
+                        "ยังไม่ได้ชำระ",
+                        href="/payment?reservation_id=" + res.get_id(), 
+                        style="color: red; font-weight: bold;"
+                    )
+                else:
+                    payment_status = P("จองสำเร็จ", style="color: green; font-weight: bold;")
+            else:
+                payment_status = P("รอการอนุมัติ", style="color: orange; font-weight: bold;")
+
             reservation_list.append(
                 Div(
                     P("Reservation ID: " + res.get_id()),
@@ -83,6 +103,7 @@ def search():
                     P("Price: " + str(res.get_price())),
                     P("Average Rating: " + str(round(car.cal_rating(), 1))),
                     reviews_display,
+                    payment_status,
                     # ฟอร์มสำหรับให้คะแนนและคอมเมนต์ (rating เป็นตัวเลข 0-5)
                     Form(
                         Input(name="reservation_id", value=res.get_id(), type="hidden"),
@@ -166,5 +187,3 @@ def rate_car(reservation_id: str, rating: float, comment: str):
 def cal_data(model: str, start_date: str, end_date: str):
     # Redirect ไปยัง showcar พร้อม query parameters
     return RedirectResponse(f"/showcar/{model}/{start_date}/{end_date}")
-
-serve()

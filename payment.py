@@ -6,11 +6,6 @@ company = BackEnd.company
 
 @rt('/payment', methods=["GET"])
 def payment_page(reservation_id: str):
-    # สร้าง instance ของ Payment (ในระบบจริงคุณอาจดึงข้อมูลเพิ่มเติมจาก reservation_id)
-    payment_instance = BackEnd.Payment("Pay1", credit="1234567890")
-    payment_id = payment_instance.get_id()
-    payment_method = payment_instance.check_method_payment()
-    
     return Container(
         Style("""
             html, body {
@@ -42,8 +37,11 @@ def payment_page(reservation_id: str):
                 border-radius: 10px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
-            h2, h3, p {
-                margin: 0 0 15px 0;
+            label {
+                font-weight: bold;
+            }
+            .payment-option {
+                margin-bottom: 10px;
             }
             button {
                 background: #0052d4;
@@ -65,10 +63,19 @@ def payment_page(reservation_id: str):
         Body(
             Div(
                 H3("Payment Details"),
-                P("Payment ID: " + payment_id),
-                P("Payment Method: " + payment_method),
-                # ฟอร์มชำระเงินส่ง reservation_id ไปด้วย
+                P("Reservation ID: " + reservation_id),
                 Form(
+                    Div(
+                        Label("เลือกวิธีการชำระเงิน:"), 
+                        Div(
+                            Input(type="radio", name="payment_method", value="qrcode", required=True, _class="payment-option"),
+                            Label("ชำระผ่านคิวอาร์โค้ด")
+                        ),
+                        Div(
+                            Input(type="radio", name="payment_method", value="cash", required=True, _class="payment-option"),
+                            Label("ชำระเงินสด")
+                        )
+                    ),
                     Input(type="hidden", name="reservation_id", value=reservation_id),
                     Button("ชำระเงิน", type="submit"),
                     action="/payment/process", method="POST"
@@ -80,9 +87,23 @@ def payment_page(reservation_id: str):
     )
 
 @rt('/payment/process', methods=["POST"])
-def process_payment(reservation_id: str):
-    # ที่นี่คุณสามารถเพิ่มโค้ดประมวลผลการชำระเงินหรืออัพเดตสถานะการจองได้
-    # หลังจากชำระเงินสำเร็จ Redirect ไปที่หน้า search (ประวัติการเช่า)
-    return RedirectResponse("/search", status_code=302)
+def process_payment(reservation_id: str, payment_method: str):
+    # สร้าง Payment instance ตามวิธีการชำระเงินที่เลือก
+    if payment_method == "qrcode":
+         payment_instance = BackEnd.Payment("Pay" + reservation_id, qrcode="QRCodeData")
+    elif payment_method == "cash":
+         payment_instance = BackEnd.Payment("Pay" + reservation_id, credit="Cash")
+    else:
+         payment_instance = BackEnd.Payment("Pay" + reservation_id)
+    
+    company.add_payment(payment_instance)
+    
+    # ทำเครื่องหมาย Reservation ว่าชำระเงินแล้ว
+    for res in company.get_reservations():
+         if res.get_id() == reservation_id:
+              res.mark_paid()
+              break
+    # หลังจากชำระเงินแล้ว Redirect ไปที่หน้า status เพื่อแสดงสถานะการอนุมัติ
+    return RedirectResponse("/reservation/status?reservation_id=" + reservation_id, status_code=302)
 
 serve()

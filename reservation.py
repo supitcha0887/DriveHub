@@ -62,10 +62,11 @@ def reservation_form(car_id: str = "", start_date: str = "", end_date: str = "")
             H2("จองรถ", style="text-align: center;"),
             Form(
                 Input(name="car_id", value=car_id, type="hidden"),
-                Label("วันที่เริ่มเช่า:"),
-                Input(name="start_date", type="date", value=start_date),
-                Label("วันที่สิ้นสุดเช่า:"),
-                Input(name="end_date", type="date", value=end_date),
+                # ส่งค่า start_date และ end_date เป็น hidden fields
+                Input(name="start_date", type="hidden", value=start_date),
+                P("วันที่เริ่มเช่า: " + start_date),
+                Input(name="end_date", type="hidden", value=end_date),
+                P("วันที่สิ้นสุดเช่า: " + end_date),
                 # ช่องกรอกรหัสโปรโมชั่น
                 Label("รหัสโปรโมชั่น (ถ้ามี):"),
                 Input(name="promotion_code", type="text", placeholder="ระบุรหัสโปรโมชั่น"),
@@ -101,14 +102,19 @@ def save_reservation(car_id: str, start_date: str, end_date: str,
     promotion_instance = None
     promotion_info = "ไม่มีโปรโมชั่น"
     
-    if promotion_code.strip() != "":
-        try:
-            percent = float(promotion_code.strip())
-        except ValueError:
-            percent = 0.0
-        discount = base_price * (percent / 100)
+    discount_percent = 0
+    promo_code = promotion_code.strip().upper()
+    if promo_code == "ABC":
+        discount_percent = 10
+    elif promo_code == "DEF":
+        discount_percent = 20
+    elif promo_code == "GHI":
+        discount_percent = 50
+    
+    if discount_percent > 0:
+        discount = base_price * (discount_percent / 100)
         price = base_price - discount
-        promotion_info = f"ลด {percent}%"
+        promotion_info = f"ลด {discount_percent}%"
 
     reservation_id = "R" + car_id + "_" + str(int(time.time()))
     reservation = BackEnd.Reservation(
@@ -119,61 +125,29 @@ def save_reservation(car_id: str, start_date: str, end_date: str,
         end_date, 
         price,
         driver=None, 
-        promotion=None, 
+        promotion=promotion_instance, 
         insurance=None
     )
     company.add_reservation(reservation)
     
-    # แสดงรายละเอียดการจอง พร้อมแจ้งให้รอการอนุมัติจาก Admin และ Driver
-    reservation_details = Div(
-        H3("รายละเอียดการจอง"),
-        P("Reservation ID: " + reservation.get_id()),
-        P("Renter: " + reservation.get_renter().get_username()),
-        P("วันที่เริ่มเช่า: " + start_date),
-        P("วันที่สิ้นสุดเช่า: " + end_date),
-        P("ราคาที่คำนวณ: " + str(reservation.get_price())),
-        P("โปรโมชั่น: " + promotion_info)
-    )
-    
-    info_message = Div(
-        P("ระบบกำลังรอการอนุมัติจาก Admin และ Driver..."),
-        P("เมื่อได้รับการอนุมัติแล้ว กรุณาตรวจสอบสถานะ "),
-        A("ตรวจสอบสถานะ", href="/reservation/status?reservation_id=" + reservation.get_id())
-    )
-    
-    return Container(
-        Style(THEME_STYLE + """
-            body { padding: 20px; }
-            .message {
-                max-width: 600px;
-                margin: 40px auto;
-                background: #FFF;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                text-align: center;
-            }
-            a {
-                color: #0052d4;
-                text-decoration: underline;
-                cursor: pointer;
-            }
-            """
-        ),
-        Div(
-            reservation_details,
-            info_message,
-            _class="message"
-        )
-    )
+    # หลังจากบันทึก Reservation แล้วให้รีไดเร็กไปที่หน้า Payment
+    return RedirectResponse("/payment?reservation_id=" + reservation.get_id(), status_code=302)
 
-# ตรวจสอบสถานะ Reservation ถ้าอนุมัติครบแล้ว Redirect ไปยัง Payment
+# ตรวจสอบสถานะ Reservation ถ้าอนุมัติครบแล้ว Redirect ไปยัง Payment หรือแสดงสถานะให้ผู้ใช้ทราบ
 @rt('/reservation/status', methods=["GET"])
 def reservation_status(reservation_id: str):
     for res in company.get_reservations():
         if res.get_id() == reservation_id:
             if res.is_admin_approved() and res.is_driver_approved():
-                return RedirectResponse("/payment?reservation_id=" + reservation_id, status_code=302)
+                # หากอนุมัติแล้ว แต่ยังไม่ชำระ จะรีไดเร็กไปที่ Payment
+                if not res.is_paid():
+                    return RedirectResponse("/payment?reservation_id=" + reservation_id, status_code=302)
+                else:
+                    return Container(
+                        Style(THEME_STYLE + "body { padding: 20px; }"),
+                        H2("จองสำเร็จ", style="color: green;"),
+                        P("Reservation ID: " + reservation_id)
+                    )
             else:
                 admin_status = "Approved" if res.is_admin_approved() else "ยังไม่อนุมัติ"
                 driver_status = "Approved" if res.is_driver_approved() else "ยังไม่อนุมัติ"
