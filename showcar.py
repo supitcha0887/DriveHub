@@ -100,6 +100,10 @@ def showcar(allcar: str = "All"):
                             P("Status: " + car.get_status()),
                             P("Color: " + car.get_color()),
                             P("Seat Count: " + car.get_seat_count()),
+                            P("Average Rating: " + str(round(car.cal_rating(),1))),
+                            Div(
+                                *[P("Review: " + rev.get_comment() + " (Date: " + rev.get_date() + ")") for rev in car.get_reviews()]
+                            ),
                             # Form สำหรับปุ่ม Select ที่จะนำไปหน้า reservation
                             Form(
                                 Input(type="hidden", name="car_id", value=car.get_id()),

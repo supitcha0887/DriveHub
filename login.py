@@ -166,7 +166,7 @@ def login(login_username: str, login_password: str):
     if role in ["user", "renter"]:
         return RedirectResponse("/search" , status_code=302)
     elif role == "driver":
-        return RedirectResponse("/driver")
+        return RedirectResponse("/driver" , status_code=302)
     elif role == "admin":
         return RedirectResponse("/admin", status_code=302)
     else:

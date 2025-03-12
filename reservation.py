@@ -7,9 +7,8 @@ company = BackEnd.company
 
 # Endpoint สำหรับแสดงฟอร์มจองรถ
 @rt('/reservation/form', methods=["GET"])
-def reservation_form():
+def reservation_form(car_id: str = ""):
     # สมมุติว่า car_id ถูกส่งเข้ามาใน query string จากหน้า showcar
-    car_id = request.args.get("car_id", "")
     return Container(
         Style("""
             body { font-family: Arial; background: #F5F5F5; padding: 20px; }
