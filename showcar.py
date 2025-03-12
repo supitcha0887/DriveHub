@@ -117,6 +117,19 @@ def showcar(model: str, start_date: str, end_date: str):
                                 Button("Select", type="submit", _class="select-btn"),
                                 action="/reservation/form", method="GET"
                             ),
+                            # แสดงรีวิวและ rating ที่มีอยู่ในรถ
+                            Div(
+                                H4("Reviews:"),
+                                *[
+                                    Div(
+                                        P("Rating: " + str(round(sum(car.get_ratings())/len(car.get_ratings()),1)) if car.get_ratings() else "No ratings"),
+                                        P("Comment: " + rev.get_comment() + " (" + rev.get_date() + ")"),
+                                        _class="review-item"
+                                    )
+                                    for rev in car.get_reviews()
+                                ],
+                                _class="reviews"
+                            ),
                             _class="card-details"
                         ),
                         _class="card"
