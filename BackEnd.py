@@ -1,7 +1,6 @@
 # รถ -----------------------------------------------------------------------
 class Car:
-    def __init__(self, image, id, model, licensecar, price, status, color, seat_count):
-        self.__image = image
+    def __init__(self, id, model, licensecar, price, status, color, seat_count, image=None,):
         self.__id = id
         self.__model = model
         self.__licensecar = licensecar
@@ -9,6 +8,7 @@ class Car:
         self.__status = status
         self.__color = color
         self.__seat_count = seat_count
+        self.__image = image
         self.__reviews = []
         self.__ratings = []
 
@@ -391,7 +391,7 @@ company.add_user(admin1)
 def init_data():
     if not company.get_cars():
         # สร้าง instance ของรถและเพิ่มเข้าใน company
-        car1 = Car("1", "Toyota", "D0-1125", 2000, "available", "red", "5", image="src/image/toyota.png")
+        car1 = Car("1", "Toyota", "D0-1125", 2000, "available", "red", "5", image="/static/images/toyota.png")
         company.add_car(car1)
 
         # ทดสอบเพิ่มรีวิวและเรทติ้งให้รถ
@@ -401,7 +401,7 @@ def init_data():
         car1.add_rating_car(5.0)
 
         # สร้างรถอีกคัน
-        car2 = Car("2", "Honda", "D0-1126", 2500, "available", "blue", "6", image="path/to/toyota.jpg")
+        car2 = Car("2", "Honda", "D0-1126", 2500, "available", "white", "6", image="/static/images/honda.jpg")
         company.add_car(car2)
 
 # เรียกใช้งาน init_data() เมื่อ module ถูก import
