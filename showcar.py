@@ -3,21 +3,22 @@ from routing import app, rt
 import BackEnd
 company = BackEnd.company
 
-@rt('/showcar',methods=["GET"])
+@rt('/showcar', methods=["GET"])
 def showcar(allcar: str = "All"):
     # กรองรายชื่อรถตามรุ่นที่เลือก ถ้าเลือก "All" ให้แสดงทุกคัน
     if allcar == "All":
         filtered_cars = company.get_cars()
     else:
         filtered_cars = [car for car in company.get_cars() if car.get_model() == allcar]
+    
     return Container(
         Style("""
-            /* กำหนด style สำหรับทั้งหน้า */
             body {
                 font-family: Arial, sans-serif;
                 background: #AEEEEE;
                 padding: 20px;
             }
+            /* แถบ header ด้านบน */
             .header {
                 width: 100%;
                 background: #4682B4;
@@ -32,106 +33,90 @@ def showcar(allcar: str = "All"):
                 color: #B0E0E6;
                 margin: 0;
             }
+            /* ส่วนเนื้อหาหลัก */
             .content {
-                margin-top: 80px;
-                max-width: 800px;
-                margin-left: auto;
-                margin-right: auto;
+                margin-top: 80px; /* ให้มีระยะห่างจาก header */
+            }
+            /* Card สำหรับแต่ละรถ */
+            .card {
                 background: #fff;
-                padding: 20px;
                 border-radius: 10px;
-                box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                margin-bottom: 20px;
+                overflow: hidden;
             }
-            h3 {
-                text-align: center;
-                color: #1C1C3B;
-                font-size: 36px;
+            .card img {
+                width: 300px;      /* กำหนดขนาดภาพให้เล็กลง */
+                height: auto;
+                display: block;
+                margin: auto;
             }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-            th, td {
-                padding: 8px;
-                border: 1px solid #ddd;
+            .card-details {
+                padding: 20px;
                 text-align: center;
             }
-            th {
-                background-color: #f2f2f2;
+            .card-details h3 {
+                margin: 0 0 10px;
+                font-size: 28px;
             }
-            tr:hover {
-                background-color: #f9f9f9;
+            .card-details p {
+                margin: 5px 0;
+                font-size: 18px;
             }
-            button {
-                background: #4CAF50;
+            .select-btn {
+                margin-top: 15px;
+                background: #1C1C3B;
                 color: white;
-                padding: 5px 10px;
+                padding: 10px 20px;
                 border: none;
-                border-radius: 4px;
+                border-radius: 5px;
                 cursor: pointer;
+                outline: none;
             }
-            button:hover {
+            .select-btn:hover {
                 background: #45a049;
             }
-            img {
-                width: 100px;
-                height: auto;
-                border-radius: 5px;
+            .select-btn:active {
+                background: #1C1C3B;
             }
         """),
-
-        # Header Bar
         Div(
+            # แถบ header ด้านบน
             Div(
-                Div(
-                    H2("DRIVY", style="color: #fff; margin: 0;"),
-                    style="display: flex; align-items: center; gap: 0px;"
-                ),
-                style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
+                H2("DRIVY", style="color: #fff; margin: 0;"),
+                _class="header"
             ),
-            _class="header"
-        ),
-        # Body Content
-
-        Body(
+            # ส่วนเนื้อหาหลัก แสดง card รถ
             Div(
-                H3("Car Details"),
-                Table(
-                    # Header ของตาราง
-                    Tr(
-                        Th("ID"),
-                        Th("Model"),
-                        Th("License"),
-                        Th("Price"),
-                        Th("Status"),
-                        Th("Color"),
-                        Th("Select")
-                    ),
-                     # สร้างแถวข้อมูลรถจาก backend
-                    *[
-                        Tr(
-                            Td(car._Car__id),
-                            Td(car.get_model()),
-                            Td(car._Car__licensecar),
-                            Td(str(car._Car__price)),
-                            Td(car.get_status()),
-                            Td(car._Car__color),
-                            Td(Form(
-                                Input(type="hidden", name="car_id", value=car._Car__id),
+                *[
+                    Div(
+                        # ภาพรถ (ปรับขนาดให้เล็กลง)
+                        Img(src=car.get_image(), alt="Car Image"),
+                        # รายละเอียดรถ
+                        Div(
+                            H3(car.get_model()),
+                            P("License: " + car.get_licensecar()),
+                            P("Price: " + str(car.get_price())),
+                            P("Status: " + car.get_status()),
+                            P("Color: " + car.get_color()),
+                            P("Seat Count: " + car.get_seat_count()),
+                            # Form สำหรับปุ่ม Select ที่จะนำไปหน้า reservation
+                            Form(
+                                Input(type="hidden", name="car_id", value=car.get_id()),
                                 Input(type="hidden", name="start_date", value="2025-03-12"),
                                 Input(type="hidden", name="end_date", value="2025-03-13"),
-                                Button("Select", type="submit"),
+                                Button("Select", type="submit", _class="select-btn"),
                                 action="/reservation", method="POST"
-                            ))
-                        ) for car in filtered_cars
-                    ],
-                    {"style": "width: 100%;"}
-                ),
+                            ),
+                            _class="card-details"
+                        ),
+                        _class="card"
+                    ) for car in filtered_cars
+                ],
                 _class="content"
-            ),
-            style="background: #AEEEEE; padding: 20px; min-height: 100vh;"
+            )
         )
     )
+
 
 serve()
