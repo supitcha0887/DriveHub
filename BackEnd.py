@@ -129,6 +129,7 @@ class Reservation:
         # เพิ่มสถานะอนุมัติ
         self.__admin_approved = False
         self.__driver_approved = False
+        self.__promotion = promotion
 
     def get_id(self):
         return self.__id
@@ -180,6 +181,15 @@ class Reservation:
 
     def approve_driver(self):
         self.__driver_approved = True
+
+    def get_promotion(self):
+        return self.__promotion
+    
+    def apply_promotion(self, promotion):
+        self.__promotion = promotion
+        base_price = self.__car.get_price()
+        discount = base_price * (promotion.get_percent() / 100)
+        self.__price = base_price - discount
 
 # เก็บส่วนลด -----------------------------------------------------------------------
 class Promotion:

@@ -1,136 +1,202 @@
 from fasthtml.common import *
 from routing import app, rt
 import BackEnd
-from BackEnd import Admin
-from BackEnd import User
-from BackEnd import Driver
+from BackEnd import Admin, User, Driver
 company = BackEnd.company
 
 @rt('/')
 def get(success_message=None, error_message=None):
     return Title("DRIVY"), Container(
-        Style(""" 
-            .tab-btn { 
-                color: #1C1C3B; 
-                font-size: 18px; 
-                font-weight: bold; 
-                background: transparent; 
+        Style("""
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+            * { box-sizing: border-box; }
+            html, body {
+                height: 100%;
+                font-family: 'Roboto', sans-serif;
+            }
+            body {
+                background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+                background-size: cover;
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+            .header {
+                width: 100%;
+                background: rgba(0,0,0,0.5);
+                padding: 20px 40px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .header h2 {
+                color: #fff;
+                margin: 0;
+                font-size: 42px;
+                letter-spacing: 2px;
+            }
+            .tab-btn {
+                color: #fff;
+                font-size: 18px;
+                font-weight: bold;
+                background: transparent;
+                border: 2px solid transparent;
+                border-radius: 5px;
+                outline: none;
+                padding: 10px 20px;
+                cursor: pointer;
+                transition: background 0.3s, border-color 0.3s;
+            }
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.2);
+            }
+            .tab-btn.active {
+                border-color: #fff;
+            }
+            .form-section {
+                display: none;
+                background: #fff;
+                padding: 40px;
+                border-radius: 10px;
+                box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+                max-width: 400px;
+                width: 90%;
+                transition: opacity 0.5s ease;
+                margin: auto;
+            }
+            .form-section.active {
+                display: block;
+                opacity: 1;
+            }
+            .form-section label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 700;
+            }
+            .form-section input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            .form-section button {
+                width: 100%;
+                padding: 12px;
                 border: none;
-                outline: none; 
-                padding: 10px 20px; 
-                cursor: pointer; 
+                border-radius: 5px;
+                background: #0052d4;
+                color: #fff;
+                font-size: 16px;
+                cursor: pointer;
                 transition: background 0.3s;
             }
-            .tab-btn:hover { background: #D3D3D3; }
-            .tab-btn.active { border-bottom: 2px solid #1C1C3B; }
-            .form-section { 
-                display: none; 
-                background: #fff; 
-                padding: 20px; 
-                border-radius: 10px; 
-                border: 1px solid #1C1C3B; 
-                box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); 
-                margin-top: 20px;
-                transition: opacity 0.5s ease;
+            .form-section button:hover {
+                background: #003bb5;
             }
-            .form-section.active { display: block; opacity: 1; }
-            .success-message {
-                color: green;
-                font-size: 20px;
+            /* Message container สำหรับข้อความเด่น */
+            .message-container {
+                background: rgba(0, 0, 0, 0.7);
+                color: #fff;
+                padding: 20px;
+                border-radius: 10px;
                 text-align: center;
-                margin-top: 20px;
+                margin-bottom: 20px;
+                font-size: 24px;
+                font-weight: bold;
             }
-            .error-message {
-                color: red;
-                font-size: 20px;
-                text-align: center;
-                margin-top: 20px;
+            .main-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 120px;
             }
         """),
         Div(
-            Div(H2("DRIVY", style="color: #B0E0E6; margin: 0;")),
-            style="width: 100%; background: #4682B4; padding: 25px; border-bottom: 2px solid #502314; position: fixed; top: 0; left: 0; z-index: 1000;"
-        ),
-        Body(
             Div(
-                H3("LOGIN / REGISTER", style="font-size: 36px; text-align: center; color: #1C1C3B;"),
+                H2("DRIVY", style="margin: 0;"),
+                _class="header"
+            ),
+            Body(
                 Div(
-                    Button("Login", type="button", id="loginBtn", _class="tab-btn active"),
-                    Button("Register", type="button", id="registerBtn", _class="tab-btn"),
-                    style="text-align: center; margin-bottom: 10px;"
-                ),
-                # แสดงข้อความสำเร็จหรือผิดพลาด ถ้ามี
-                success_message and Div(H3(success_message, _class="success-message")),
-                error_message and Div(H3(error_message, _class="error-message")),
-                # ฟอร์มสำหรับ Login
-                Form(
+                    # แสดงข้อความเด่นเมื่อสมัครหรือเข้าสู่ระบบสำเร็จ
+                    success_message and Div(success_message, _class="message-container"),
+                    error_message and Div(error_message, _class="message-container"),
+                    
+                    H3("LOGIN / REGISTER", style="font-size: 32px; text-align: center; margin-bottom: 20px; color: #fff;"),
                     Div(
-                        Div(Label("Username"), Input(type="text", id="login_username", name="login_username", required=True)),
-                        Div(Label("Password"), Input(type="password", id="login_password", name="login_password", required=True))
+                        Button("Login", type="button", id="loginBtn", _class="tab-btn active"),
+                        Button("Register", type="button", id="registerBtn", _class="tab-btn"),
+                        style="text-align: center; margin-bottom: 20px;"
                     ),
-                    Button("LOG IN", type="submit"),
-                    method="POST",  # ต้องใช้ POST
-                    action="/login",
-                    style="background: #AEEEEE; padding: 20px; min-height: 100vh; margin-top: 80px;",
-                    id="login-section",
-                    _class="form-section active"
-                ),
-
-                # ฟอร์มสำหรับ Register
-                Form(
-                   Div(
-                        Div(Label("Username"), Input(type="text", id="register_username", name="register_username", required=True)),
-                        Div(Label("Password"), Input(type="password", id="register_password", name="register_password", required=True)),
+                    # ฟอร์มสำหรับ Login
+                    Form(
                         Div(
-                            Div(
-                                Input(type="radio", name="register_role", value="driver", required=True, checked=True),
-                                Label("driver")
-                            ),
-                            Div(
-                                Input(type="radio", name="register_role", value="renter", required=True),
-                                Label("renter")
-                            )
-                        )
+                            Div(Label("Username"), Input(type="text", id="login_username", name="login_username", required=True)),
+                            Div(Label("Password"), Input(type="password", id="login_password", name="login_password", required=True))
+                        ),
+                        Button("LOG IN", type="submit"),
+                        method="POST",
+                        action="/login",
+                        _class="form-section active",
+                        id="login-section"
                     ),
-                    Button("REGISTER", type="submit"),
-                    method="POST",  # ต้องใช้ POST
-                    action="/register",
-                    style="background: #AEEEEE; padding: 20px; min-height: 100vh; margin-top: 80px;",
-                    id="register-section",
-                    _class="form-section"
-                ),
-
-                Script("""
-                    // เมื่อกดปุ่ม Login ให้แสดงแบบฟอร์ม Login
-                    document.getElementById('loginBtn').addEventListener('click', function() {
-                        document.getElementById('loginBtn').classList.add('active');
-                        document.getElementById('registerBtn').classList.remove('active');
-                        document.getElementById('login-section').classList.add('active');
-                        document.getElementById('register-section').classList.remove('active');
-                    });
-                    // เมื่อกดปุ่ม Register ให้แสดงแบบฟอร์ม Register
-                    document.getElementById('registerBtn').addEventListener('click', function() {
-                        document.getElementById('registerBtn').classList.add('active');
-                        document.getElementById('loginBtn').classList.remove('active');
-                        document.getElementById('register-section').classList.add('active');
-                        document.getElementById('login-section').classList.remove('active');
-                    });
-                """)
+                    # ฟอร์มสำหรับ Register
+                    Form(
+                        Div(
+                            Div(Label("Username"), Input(type="text", id="register_username", name="register_username", required=True)),
+                            Div(Label("Password"), Input(type="password", id="register_password", name="register_password", required=True)),
+                            Div(
+                                Div(
+                                    Input(type="radio", name="register_role", value="driver", required=True, checked=True),
+                                    Label("Driver")
+                                ),
+                                Div(
+                                    Input(type="radio", name="register_role", value="renter", required=True),
+                                    Label("Renter")
+                                ),
+                                style="display: flex; justify-content: space-around; margin-bottom: 15px;"
+                            )
+                        ),
+                        Button("REGISTER", type="submit"),
+                        method="POST",
+                        action="/register",
+                        _class="form-section",
+                        id="register-section"
+                    ),
+                    _class="main-container"
+                )
             )
-        )
+        ),
+        Script("""
+            // เมื่อกดปุ่ม Login ให้แสดงฟอร์ม Login
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                document.getElementById('loginBtn').classList.add('active');
+                document.getElementById('registerBtn').classList.remove('active');
+                document.getElementById('login-section').classList.add('active');
+                document.getElementById('register-section').classList.remove('active');
+            });
+            // เมื่อกดปุ่ม Register ให้แสดงฟอร์ม Register
+            document.getElementById('registerBtn').addEventListener('click', function() {
+                document.getElementById('registerBtn').classList.add('active');
+                document.getElementById('loginBtn').classList.remove('active');
+                document.getElementById('register-section').classList.add('active');
+                document.getElementById('login-section').classList.remove('active');
+            });
+        """)
     )
 
 @rt('/register', methods=["GET"])
 def register_get() -> Response:
-    # เมื่อเรียก /register ด้วย GET ให้ redirect กลับไปที่หน้าแรกหรือหน้า login
     return RedirectResponse("/", status_code=302)
 
 @rt('/register', methods=["POST"])
 def register(register_username: str, register_password: str, register_role: str):
-    print("DEBUG: register_username:", register_username)
-    print("DEBUG: register_password:", register_password)
-    print("DEBUG: role:", register_role)
-
     if not (register_username and register_password and register_role):
         return get(error_message="กรุณากรอกข้อมูลให้ครบถ้วนสำหรับการสมัครสมาชิก")
     
@@ -144,13 +210,9 @@ def register(register_username: str, register_password: str, register_role: str)
     else:
         return get(error_message=f"การสมัครสมาชิกล้มเหลว: {msg}")
 
-
 @rt('/login', methods=["GET"])
 def login_get():
-    # เมื่อมีการเรียก /login ด้วย GET ให้ redirect กลับไปที่หน้าแรก (login page)
     return RedirectResponse("/", status_code=302)
-
-
 
 @rt('/login', methods=["POST"])
 def login(login_username: str, login_password: str):
@@ -160,17 +222,15 @@ def login(login_username: str, login_password: str):
     if not username or not password:
         return get(error_message="กรุณากรอกข้อมูลให้ครบถ้วนในการเข้าสู่ระบบ")
     
-    # ฟังก์ชัน login จะคืนค่าเป็น role (string) ถ้าหาก login สำเร็จ
     role = company.login(username, password)
     
     if role in ["user", "renter"]:
-        return RedirectResponse("/search" , status_code=302)
+        return RedirectResponse("/search", status_code=302)
     elif role == "driver":
-        return RedirectResponse("/driver" , status_code=302)
+        return RedirectResponse("/driver", status_code=302)
     elif role == "admin":
         return RedirectResponse("/admin", status_code=302)
     else:
         return get(error_message="ข้อมูลเข้าสู่ระบบผิดพลาด กรุณาลองใหม่อีกครั้ง")
 
-# เริ่มต้นเซิร์ฟเวอร์
 serve()

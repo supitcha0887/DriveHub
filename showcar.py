@@ -3,94 +3,120 @@ from routing import app, rt
 import BackEnd
 company = BackEnd.company
 
-@rt('/showcar', methods=["GET"])
-def showcar(allcar: str = "All"):
+@rt('/showcar/{model}/{start_date}/{end_date}', methods=["GET"])
+def showcar(model: str, start_date: str, end_date: str):
     # กรองรายชื่อรถตามรุ่นที่เลือก ถ้าเลือก "All" ให้แสดงทุกคัน
-    if allcar == "All":
+    if model == "All":
         filtered_cars = company.get_cars()
     else:
-        filtered_cars = [car for car in company.get_cars() if car.get_model() == allcar]
+        filtered_cars = [car for car in company.get_cars() if car.get_model() == model]
     
     return Container(
         Style("""
-            body {
-                font-family: Arial, sans-serif;
-                background: #AEEEEE;
-                padding: 20px;
+            html, body {
+                height: 100%;
+                font-family: 'Roboto', sans-serif;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+                background-size: cover;
             }
-            /* แถบ header ด้านบน */
+            /* Header ด้านบน */
             .header {
                 width: 100%;
-                background: #4682B4;
+                background: rgba(0,0,0,0.5);
                 padding: 25px;
-                border-bottom: 2px solid #502314;
                 position: fixed;
                 top: 0;
                 left: 0;
                 z-index: 1000;
+                text-align: center;
             }
             .header h2 {
-                color: #B0E0E6;
+                color: #fff;
                 margin: 0;
+                font-size: 42px;
+                letter-spacing: 2px;
             }
             /* ส่วนเนื้อหาหลัก */
             .content {
-                margin-top: 80px; /* ให้มีระยะห่างจาก header */
+                margin-top: 100px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                padding: 20px;
             }
             /* Card สำหรับแต่ละรถ */
             .card {
                 background: #fff;
                 border-radius: 10px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                margin-bottom: 20px;
                 overflow: hidden;
+                display: flex;
+                flex-direction: column;
             }
             .card img {
-                width: 300px;      /* กำหนดขนาดภาพให้เล็กลง */
+                width: 100%;
                 height: auto;
                 display: block;
-                margin: auto;
             }
             .card-details {
                 padding: 20px;
                 text-align: center;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
             }
             .card-details h3 {
                 margin: 0 0 10px;
                 font-size: 28px;
+                color: #0052d4;
             }
             .card-details p {
                 margin: 5px 0;
-                font-size: 18px;
+                font-size: 16px;
+            }
+            .review-section {
+                max-height: 100px;
+                overflow-y: auto;
+                text-align: left;
+                margin-top: 10px;
+                font-size: 14px;
             }
             .select-btn {
                 margin-top: 15px;
-                background: #1C1C3B;
-                color: white;
+                background: #0052d4;
+                color: #fff;
                 padding: 10px 20px;
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
                 outline: none;
+                transition: background 0.3s;
             }
             .select-btn:hover {
-                background: #45a049;
+                background: #003bb5;
             }
             .select-btn:active {
-                background: #1C1C3B;
+                background: #0052d4;
+            }
+            /* Form ภายใน card */
+            form {
+                margin-top: 10px;
             }
         """),
         Div(
-            # แถบ header ด้านบน
+            # Header ด้านบน
             Div(
-                H2("DRIVY", style="color: #fff; margin: 0;"),
+                H2("DRIVY", style="margin: 0;"),
                 _class="header"
             ),
             # ส่วนเนื้อหาหลัก แสดง card รถ
             Div(
-                *[
+                *[ 
                     Div(
-                        # ภาพรถ (ปรับขนาดให้เล็กลง)
+                        # ภาพรถ
                         Img(src=car.get_image(), alt="Car Image"),
                         # รายละเอียดรถ
                         Div(
@@ -100,15 +126,19 @@ def showcar(allcar: str = "All"):
                             P("Status: " + car.get_status()),
                             P("Color: " + car.get_color()),
                             P("Seat Count: " + car.get_seat_count()),
-                            P("Average Rating: " + str(round(car.cal_rating(),1))),
+                            P("Start: " + start_date),
+                            P("End: " + end_date),
+                            P("Average Rating: " + str(round(car.cal_rating(), 1))),
                             Div(
-                                *[P("Review: " + rev.get_comment() + " (Date: " + rev.get_date() + ")") for rev in car.get_reviews()]
+                                *[P("Review: " + rev.get_comment() + " (Date: " + rev.get_date() + ")", style="margin: 2px 0;")
+                                  for rev in car.get_reviews()],
+                                _class="review-section"
                             ),
-                            # Form สำหรับปุ่ม Select ที่จะนำไปหน้า reservation
+                            # Form สำหรับเลือกรถ (ส่งไปหน้า /reservation)
                             Form(
                                 Input(type="hidden", name="car_id", value=car.get_id()),
-                                Input(type="hidden", name="start_date", value="2025-03-12"),
-                                Input(type="hidden", name="end_date", value="2025-03-13"),
+                                Input(type="hidden", name="start_date", value=start_date),
+                                Input(type="hidden", name="end_date", value=end_date),
                                 Button("Select", type="submit", _class="select-btn"),
                                 action="/reservation", method="POST"
                             ),
@@ -121,6 +151,5 @@ def showcar(allcar: str = "All"):
             )
         )
     )
-
 
 serve()

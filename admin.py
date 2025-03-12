@@ -3,6 +3,18 @@ from routing import app, rt
 import BackEnd, time
 company = BackEnd.company
 
+# ตัวแปรสำหรับสไตล์พื้นฐาน (Theme)
+THEME_STYLE = """
+html, body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+    background-size: cover;
+}
+"""
+
 @rt('/admin', methods=["GET"])
 def admin_dashboard():
     # สร้าง instance ของ Admin และ Payment
@@ -16,7 +28,6 @@ def admin_dashboard():
         cars = company.get_cars()
         if cars:
             dummy_car = cars[0]
-            # สร้าง Reservation id โดยใช้ timestamp ให้ unique
             reservation_id = "R" + dummy_car.get_id() + "_" + str(int(time.time()))
             dummy_reservation = BackEnd.Reservation(
                 reservation_id,
@@ -44,21 +55,55 @@ def admin_dashboard():
                     P("Start Date: " + res.get_start_date()),
                     P("End Date: " + res.get_end_date()),
                     Div(
-                        Button("Approve", type="button", onclick=f"window.location.href='{approve_link}'"),
-                        Button("Reject", type="button", onclick=f"window.location.href='{reject_link}'"),
-                        Style("display: flex; gap: 10px;")
+                        Button("Approve", type="button", onclick=f"window.location.href='{approve_link}'", _class="select-btn"),
+                        Button("Reject", type="button", onclick=f"window.location.href='{reject_link}'", _class="select-btn"),
+                        _style="display: flex; gap: 20px;"
                     ),
-                    Style("border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;")
+                    Style("background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 10px;")
                 )
             )
     else:
-        reservation_list.append(P("ไม่มีรายการจองที่รอการอนุมัติ"))
+        reservation_list.append(P("ไม่มีรายการจองที่รอการอนุมัติ", style="color: #fff; text-align: center;"))
     
     return Container(
-        Style("""
-            body { font-family: Arial, sans-serif; background: #AEEEEE; padding: 20px; }
-            .header { width: 100%; background: #4682B4; padding: 25px; text-align: center; }
-            .content { max-width: 800px; margin: 80px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        Style(THEME_STYLE + """
+            body { padding: 20px; }
+            .header {
+                width: 100%;
+                background: rgba(0,0,0,0.5);
+                padding: 25px;
+                text-align: center;
+                border-bottom: 2px solid rgba(0,0,0,0.3);
+            }
+            .header h2 {
+                color: #fff;
+                margin: 0;
+                font-size: 42px;
+                letter-spacing: 2px;
+            }
+            .content {
+                max-width: 800px;
+                margin: 80px auto;
+                background: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            p { font-size: 18px; margin-bottom: 10px; }
+            h3 { margin-bottom: 15px; }
+            /* สไตล์ปุ่มแบบเดียวกับหน้า Driver */
+            .select-btn {
+                background: #0052d4;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            .select-btn:hover {
+                background: #003bb5;
+            }
         """),
         Div(
             H2("DRIVY Admin Dashboard", style="color: #fff; margin: 0;"),
@@ -66,8 +111,8 @@ def admin_dashboard():
         ),
         Div(
             H3("Welcome, " + admin_instance.get_username()),
-            P(payment_msg),
-            P("นี่คือรายการจองที่รอการอนุมัติจาก Admin:"),
+            P(payment_msg, style="color: #333;"),
+            P("นี่คือรายการจองที่รอการอนุมัติจาก Admin:", style="color: #333;"),
             *reservation_list,
             _class="content"
         )
@@ -79,13 +124,13 @@ def approve_reservation_admin(reservation_id: str):
         if res.get_id() == reservation_id:
             res.approve_admin()
             return Container(
-                Style("body { font-family: Arial; background: #F5F5F5; padding: 20px; }"),
-                H1("อนุมัติการจอง (Admin) สำเร็จ"),
-                P("Reservation ID: " + reservation_id)
+                Style(THEME_STYLE + "body { padding: 20px; }"),
+                H1("อนุมัติการจอง (Admin) สำเร็จ", style="color: #fff;"),
+                P("Reservation ID: " + reservation_id, style="color: #fff;")
             )
     return Container(
-        Style("body { font-family: Arial; background: #F5F5F5; padding: 20px; }"),
-        H1("ไม่พบ Reservation ที่ต้องการอนุมัติ")
+        Style(THEME_STYLE + "body { padding: 20px; }"),
+        H1("ไม่พบ Reservation ที่ต้องการอนุมัติ", style="color: #fff;")
     )
 
 @rt('/reservation/reject/admin', methods=["GET"])
@@ -95,13 +140,13 @@ def reject_reservation_admin(reservation_id: str):
         if res.get_id() == reservation_id:
             del reservations[i]
             return Container(
-                Style("body { font-family: Arial; background: #F5F5F5; padding: 20px; }"),
-                H1("Reject Reservation สำเร็จ"),
-                P("Reservation ID: " + reservation_id)
+                Style(THEME_STYLE + "body { padding: 20px; }"),
+                H1("Reject Reservation สำเร็จ", style="color: #fff;"),
+                P("Reservation ID: " + reservation_id, style="color: #fff;")
             )
     return Container(
-        Style("body { font-family: Arial; background: #F5F5F5; padding: 20px; }"),
-        H1("ไม่พบ Reservation ที่ต้องการ Reject")
+        Style(THEME_STYLE + "body { padding: 20px; }"),
+        H1("ไม่พบ Reservation ที่ต้องการ Reject", style="color: #fff;")
     )
 
 serve()

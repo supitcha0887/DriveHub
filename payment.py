@@ -1,6 +1,5 @@
 from fasthtml.common import *
-from routing import app
-from routing import rt
+from routing import app, rt
 import BackEnd
 company = BackEnd.company
 
@@ -15,21 +14,32 @@ def payment_page():
     
     return Container(
         Style("""
-            body {
-                font-family: Arial, sans-serif;
-                background: #AEEEEE; /* พื้นหลังสีฟ้าเหมือนหน้า login */
-                padding: 20px;
+            html, body {
+                height: 100%;
+                font-family: 'Roboto', sans-serif;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+                background-size: cover;
             }
+            /* Header ด้านบน */
             .header {
                 width: 100%;
-                background: #4682B4; /* สีฟ้าเข้ม */
+                background: rgba(0,0,0,0.5);
                 padding: 25px;
-                border-bottom: 2px solid #000; /* เส้นขอบด้านล่างเป็นสีดำ */
+                border-bottom: 2px solid rgba(0,0,0,0.3);
                 text-align: center;
             }
+            .header h2 {
+                color: #fff;
+                margin: 0;
+                font-size: 42px;
+                letter-spacing: 2px;
+            }
+            /* ส่วนเนื้อหาหลัก */
             .content {
                 max-width: 600px;
-                margin: 80px auto;
+                margin: 100px auto 40px auto;
                 background: #fff;
                 padding: 20px;
                 border-radius: 10px;
@@ -43,15 +53,16 @@ def payment_page():
                 color: #333;
             }
             button {
-                background: #4CAF50;
+                background: #0052d4;
                 color: white;
                 border: none;
                 padding: 10px 20px;
                 border-radius: 5px;
                 cursor: pointer;
+                transition: background 0.3s;
             }
             button:hover {
-                background: #45a049;
+                background: #003bb5;
             }
         """),
         # Header Bar
@@ -68,7 +79,7 @@ def payment_page():
                 Button("Process Payment", type="button"),
                 _class="content"
             ),
-            style="background: #AEEEEE; padding: 20px; min-height: 100vh;"
+            style="padding: 20px; min-height: 100vh;"
         )
     )
 
