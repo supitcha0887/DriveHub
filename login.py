@@ -78,12 +78,18 @@ def get(success_message=None, error_message=None):
 
                 # ฟอร์มสำหรับ Register
                 Form(
-                    Div(
+                   Div(
                         Div(Label("Username"), Input(type="text", id="register_username", name="register_username", required=True)),
                         Div(Label("Password"), Input(type="password", id="register_password", name="register_password", required=True)),
                         Div(
-                            Label(Input(type="radio", name="register_role", value="driver", required=True, checked=True), "driver"),
-                            Label(Input(type="radio", name="register_role", value="renter", required=True), "renter")
+                            Div(
+                                Input(type="radio", name="register_role", value="driver", required=True, checked=True),
+                                Label("driver")
+                            ),
+                            Div(
+                                Input(type="radio", name="register_role", value="renter", required=True),
+                                Label("renter")
+                            )
                         )
                     ),
                     Button("REGISTER", type="submit"),
@@ -114,9 +120,13 @@ def get(success_message=None, error_message=None):
         )
     )
 
-@rt('/register', methods=["POST"])
-def register(register_username, register_password, register_role):
+@rt('/register', methods=["GET"])
+def register_get() -> Response:
+    # เมื่อเรียก /register ด้วย GET ให้ redirect กลับไปที่หน้าแรกหรือหน้า login
+    return RedirectResponse("/", status_code=302)
 
+@rt('/register', methods=["POST"])
+def register(register_username: str, register_password: str, register_role: str):
     print("DEBUG: register_username:", register_username)
     print("DEBUG: register_password:", register_password)
     print("DEBUG: role:", register_role)
@@ -134,6 +144,11 @@ def register(register_username, register_password, register_role):
     else:
         return get(error_message=f"การสมัครสมาชิกล้มเหลว: {msg}")
 
+
+@rt('/login', methods=["GET"])
+def login_get():
+    # เมื่อมีการเรียก /login ด้วย GET ให้ redirect กลับไปที่หน้าแรก (login page)
+    return RedirectResponse("/", status_code=302)
 
 
 
@@ -153,10 +168,9 @@ def login(login_username: str, login_password: str):
     elif role == "driver":
         return RedirectResponse("/driver")
     elif role == "admin":
-        return RedirectResponse("/admin")
+        return RedirectResponse("/admin", status_code=302)
     else:
         return get(error_message="ข้อมูลเข้าสู่ระบบผิดพลาด กรุณาลองใหม่อีกครั้ง")
-
 
 # เริ่มต้นเซิร์ฟเวอร์
 serve()
