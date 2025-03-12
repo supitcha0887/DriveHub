@@ -1,6 +1,7 @@
 # รถ -----------------------------------------------------------------------
 class Car:
-    def __init__(self, id, model, licensecar, price, status, color, seat_count):
+    def __init__(self, image, id, model, licensecar, price, status, color, seat_count):
+        self.__image = image
         self.__id = id
         self.__model = model
         self.__licensecar = licensecar
@@ -10,6 +11,9 @@ class Car:
         self.__seat_count = seat_count
         self.__reviews = []
         self.__ratings = []
+
+    def get_image(self):
+        return self.__image
     
     def get_id(self):
         return self.__id
@@ -267,23 +271,12 @@ class Insurance:
 # controller -----------------------------------------------------------------------
 class Company:
     def __init__(self):
-        self.__detailcars = []  # เก็บรายละเอียดรถพร้อมรีวิว+เรทติ้ง
         self.__users = []       # เก็บข้อมูลผู้ใช้งานทั้งหมด (admin, driver, user)
         self.__payments = []
         self.__reservations = []
-        self.__histories = []
         self.__promotions = []
         self.__location = []
         self.__cars = []        # รวมรถทั้งหมด
-        self.__insurances = []
-        self.__jobs = []
-
-    def add_detailcar(self, car):
-        self.__detailcars.append(car)
-        return car
-    
-    def get_detailcars(self):
-        return self.__detailcars
     
     def add_user(self, user: User):
         self.__users.append(user)
@@ -305,13 +298,6 @@ class Company:
     
     def get_reservations(self):
         return self.__reservations
-    
-    def add_history(self, history):
-        self.__histories.append(history)
-        return history
-
-    def get_histories(self):
-        return self.__histories
     
     def add_promotion(self, promotion):
         self.__promotions.append(promotion)
@@ -363,20 +349,6 @@ class Company:
     def add_driver(self, driver: Driver):
         self.__users.append(driver)
         return driver
-    
-    def add_insurance(self, insurance):
-        self.__insurances.append(insurance)
-        return insurance
-
-    def get_insurances(self):
-        return self.__insurances
-
-    def add_job(self, job):
-        self.__jobs.append(job)
-        return job
-
-    def get_jobs(self):
-        return self.__jobs
 
     def login(self, username, password):
         print(f"Attempting login: username={username}, password={password}")  # Debugging
@@ -419,7 +391,7 @@ company.add_user(admin1)
 def init_data():
     if not company.get_cars():
         # สร้าง instance ของรถและเพิ่มเข้าใน company
-        car1 = Car("1", "Toyota", "D0-1125", 2000, "available", "red", "5")
+        car1 = Car("1", "Toyota", "D0-1125", 2000, "available", "red", "5", image="src/image/toyota.png")
         company.add_car(car1)
 
         # ทดสอบเพิ่มรีวิวและเรทติ้งให้รถ
@@ -429,7 +401,7 @@ def init_data():
         car1.add_rating_car(5.0)
 
         # สร้างรถอีกคัน
-        car2 = Car("2", "Honda", "D0-1126", 2500, "available", "blue", "6")
+        car2 = Car("2", "Honda", "D0-1126", 2500, "available", "blue", "6", image="path/to/toyota.jpg")
         company.add_car(car2)
 
 # เรียกใช้งาน init_data() เมื่อ module ถูก import
@@ -445,17 +417,6 @@ if __name__ == "__main__":
     for c in company.get_cars():
         print(f"ID: {c.get_id()}, Model: {c.get_model()}, License: {c.get_licensecar()}, Price: {c.get_price()}, Status: {c.get_status()}, Color: {c.get_color()}")
 
-    print("\nDetail Cars:")
-    for c in company.get_detailcars():
-        print(f"ID: {c.get_id()}, Model: {c.get_model()}, License: {c.get_licensecar()}, Price: {c.get_price()}, Status: {c.get_status()}, Color: {c.get_color()}")
-        reviews = c.get_reviews()
-        if reviews:
-            for r in reviews:
-                print(f"  Review: {r.get_comment()} (Date: {r.get_date()})")
-        ratings = c.get_ratings()
-        if ratings:
-            print(f"  Ratings: {ratings} (Average Rating: {c.cal_rating()})")
-
     print("\nPayments:")
     for p in company.get_payments():
         print(f"Payment ID: {p.get_id()}, Method: {p.check_method_payment()}")
@@ -465,10 +426,6 @@ if __name__ == "__main__":
         driver_info = res.get_driver().get_username() if res.get_driver() else "Not assigned"
         print(f"Reservation ID: {res.get_id()}, Renter: {res.get_renter().get_username()}, Car: {res.get_car().get_model()}, Start: {res.get_start_date()}, End: {res.get_end_date()}, Price: {res.get_price()}, Driver: {driver_info}")
 
-    print("\nHistories:")
-    for h in company.get_histories():
-        print(h)
-
     print("\nPromotions:")
     for promo in company.get_promotions():
         print(f"Promotion ID: {promo.get_id()}, Code: {promo._Promotion__code}, Percent: {promo.get_percent()}")
@@ -476,11 +433,3 @@ if __name__ == "__main__":
     print("\nLocations:")
     for loc in company.get_location():
         print(f"Location ID: {loc.get_id()}, Name: {loc.get_name()}")
-
-    print("\nInsurances:")
-    for ins in company.get_insurances():
-        print(f"Insurance ID: {ins.get_id()}, Name: {ins.get_name()}, Detail: {ins.get_detail()}")
-
-    print("\nJobs:")
-    for job in company.get_jobs():
-        print(job)
