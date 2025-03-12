@@ -26,14 +26,14 @@ def get(success_message=None, error_message=None):
             .header {
                 width: 100%;
                 background: rgba(0,0,0,0.5);
-                padding: 20px 40px;
+                padding: 10px 20px;
                 position: fixed;
                 top: 0;
                 left: 0;
                 z-index: 1000;
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;  /* เปลี่ยนจาก center เป็น flex-start */
                 box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             }
             .header h2 {
@@ -122,7 +122,7 @@ def get(success_message=None, error_message=None):
             Div(
                 Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
                 H2("DRIVY", style="margin: 0;"),
-                style="display: flex; align-items: center;",
+                style="display: flex; align-items: center; justify-content: flex-start;",
                 _class="header"
             ),
             Body(
@@ -229,5 +229,7 @@ def login(login_username: str, login_password: str):
         return RedirectResponse("/admin", status_code=302)
     else:
         return get(error_message="ข้อมูลเข้าสู่ระบบผิดพลาด กรุณาลองใหม่อีกครั้ง")
+
+
 
 serve()

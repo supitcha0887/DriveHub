@@ -8,17 +8,18 @@ company = BackEnd.company
 def search():
     search_section = Div(
         Div(
-            Div(
-                Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
-                H2("DRIVY", style="color: #FFF; margin: 0; font-size: 42px; letter-spacing: 2px;"),
-                style="display: flex; align-items: center;"
-            ),
-            style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
+        Div(
+            Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
+            H2("DRIVY", style="color: #FFF; margin: 0; font-size: 42px; letter-spacing: 2px;"),
+            style="display: flex; align-items: center; justify-content: flex-start;",  # ปรับให้ชิดซ้าย
+            _class="header"
+        ),
+        style="width: 100%;"  # ไม่ต้องใช้ space-between อีกต่อไป
         ),
         style="""
             width: 100%;
             background: rgba(0,0,0,0.6);
-            padding: 25px;
+            padding: 10px 20px;  /* ลด padding ให้เล็กลง */
             border-bottom: 2px solid rgba(0,0,0,0.3);
             position: fixed;
             top: 0;
@@ -51,7 +52,20 @@ def search():
                 ),
                 style="display: grid; gap: 15px;"
             ),
-            Button("Search", type="submit", style="background: #2196F3; color: white; font-weight: bold; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-top: 20px; width: 100%;"),
+            Button("Search", type="submit", style="""
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(45deg, #2196F3, #21CBF3);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+""",
+    onmouseover="this.style.background='linear-gradient(45deg, #1976D2, #1E88E5)'",
+    onmouseout="this.style.background='linear-gradient(45deg, #2196F3, #21CBF3)'"
+),
             method="get",
             action="/cal",
             _class="search-form",

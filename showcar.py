@@ -31,7 +31,7 @@ def showcar(model: str, start_date: str, end_date: str):
             .header {{
                 width: 100%;
                 background: rgba(0,0,0,0.6);
-                padding: 25px;
+                padding: 10px 20px;
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -95,16 +95,17 @@ def showcar(model: str, start_date: str, end_date: str):
             }}
             .select-btn {{
                 margin-top: 15px;
-                background: linear-gradient(45deg, #0052d4, #4364f7);
+                background: linear-gradient(45deg, #2196F3, #21CBF3);
                 color: #fff;
-                padding: 10px 20px;
+                padding: 12px 20px;
                 border: none;
                 border-radius: 5px;
+                font-size: 16px;
                 cursor: pointer;
                 transition: background 0.3s ease, transform 0.3s;
             }}
             .select-btn:hover {{
-                background: linear-gradient(45deg, #003bb5, #345ecb);
+                background: linear-gradient(45deg, #1976D2, #1E88E5);
                 transform: translateY(-2px);
             }}
             .reviews {{

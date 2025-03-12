@@ -47,9 +47,14 @@ def driver_dashboard():
             .header {
                 width: 100%;
                 background: rgba(0,0,0,0.5);
-                padding: 25px;
-                text-align: center;
-                border-bottom: 2px solid rgba(0,0,0,0.3);
+                padding: 10px 20px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;  /* เปลี่ยนจาก center เป็น flex-start */
                 box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             }
             .header h2 {
@@ -57,7 +62,6 @@ def driver_dashboard():
                 margin: 0;
                 font-size: 42px;
                 letter-spacing: 2px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
             }
             .content {
                 max-width: 800px;
@@ -76,12 +80,15 @@ def driver_dashboard():
                 cursor: pointer;
                 transition: background 0.3s;
             }
+
             .select-btn:hover {
                 background: linear-gradient(45deg, #1976D2, #1E88E5);
+            }
             }
             p { font-size: 18px; margin-bottom: 10px; }
         """),
         Div(
+            Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
             H2("DRIVY Driver Dashboard", style="color: #fff; margin: 0;"),
             _class="header"
         ),

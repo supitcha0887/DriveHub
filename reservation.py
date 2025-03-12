@@ -23,7 +23,7 @@ def reservation_form(car_id: str = "", start_date: str = "", end_date: str = "")
             body { padding: 20px; }
             .form-container {
                 max-width: 500px;
-                margin: 40px auto;
+                margin: 100px auto 20px auto;
                 background: rgba(255,255,255,0.95);
                 padding: 20px;
                 border-radius: 10px;
@@ -48,35 +48,67 @@ def reservation_form(car_id: str = "", start_date: str = "", end_date: str = "")
                 transition: background 0.3s;
             }
             button:hover { background: linear-gradient(45deg, #1976D2, #1E88E5); }
+            .header {
+                width: 100%;
+                background: rgba(0,0,0,0.6);
+                padding: 10px 20px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1000;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            }
+            .header h2 {
+                color: #fff;
+                margin: 0;
+                font-size: 42px;
+                letter-spacing: 2px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            }
+            .header img {
+                width: 70px;
+                height: auto;
+                margin-right: 10px;
+            }
         """),
+        
         Div(
-            H2("จองรถ", style="text-align: center;"),
-            Form(
-                Input(name="car_id", value=car_id, type="hidden"),
-                Input(name="start_date", type="hidden", value=start_date),
-                P("วันที่เริ่มเช่า: " + start_date, style="font-size:18px;"),
-                Input(name="end_date", type="hidden", value=end_date),
-                P("วันที่สิ้นสุดเช่า: " + end_date, style="font-size:18px;"),
-                Label("รหัสโปรโมชั่น (ถ้ามี):"),
-                Input(name="promotion_code", type="text", placeholder="ระบุรหัสโปรโมชั่น"),
-                Label("ต้องการประกันรถหรือไม่:"),
-                Select(
-                    Option("No", value="No"),
-                    Option("Yes", value="Yes"),
-                    name="insurance_option",
-                    required=True
-                ),
-                Label("ต้องการคนขับหรือไม่:"),
-                Select(
-                    Option("No", value="No"),
-                    Option("Yes", value="Yes"),
-                    name="driver_option",
-                    required=True
-                ),
-                Button("จองรถ", type="submit"),
-                action="/reservation", method="POST"
+            Div(
+                Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
+                H2("DRIVY", style="margin: 0;"),
+                style="display: flex; align-items: center;",
+                _class="header"
             ),
-            _class="form-container"
+            Div(
+                H2("จองรถ", style="text-align: center;"),
+                Form(
+                    Input(name="car_id", value=car_id, type="hidden"),
+                    Input(name="start_date", type="hidden", value=start_date),
+                    P("วันที่เริ่มเช่า: " + start_date, style="font-size:18px;"),
+                    Input(name="end_date", type="hidden", value=end_date),
+                    P("วันที่สิ้นสุดเช่า: " + end_date, style="font-size:18px;"),
+                    Label("รหัสโปรโมชั่น (ถ้ามี):"),
+                    Input(name="promotion_code", type="text", placeholder="ระบุรหัสโปรโมชั่น"),
+                    Label("ต้องการประกันรถหรือไม่:"),
+                    Select(
+                        Option("No", value="No"),
+                        Option("Yes", value="Yes"),
+                        name="insurance_option",
+                        required=True
+                    ),
+                    Label("ต้องการคนขับหรือไม่:"),
+                    Select(
+                        Option("No", value="No"),
+                        Option("Yes", value="Yes"),
+                        name="driver_option",
+                        required=True
+                    ),
+                    Button("จองรถ", type="submit"),
+                    action="/reservation", method="POST"
+                ),
+                _class="form-container"
+            )
         )
     )
 

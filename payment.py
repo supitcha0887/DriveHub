@@ -32,9 +32,12 @@ def payment_page(reservation_id: str):
             }
             .header {
                 width: 100%;
-                background: rgba(0,0,0,0.5);
-                padding: 25px;
-                border-bottom: 2px solid rgba(0,0,0,0.3);
+                background: rgba(0,0,0,0.6);
+                padding: 10px 20px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1000;
                 text-align: center;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             }
@@ -43,10 +46,11 @@ def payment_page(reservation_id: str):
                 margin: 0;
                 font-size: 42px;
                 letter-spacing: 2px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
             }
             .content {
                 max-width: 600px;
-                margin: 0 auto;  /* ลบ margin-top ที่เป็น 100px ออก */
+                margin: 120px auto 0 auto; /* ปรับ margin-top ให้กรอบเลื่อนลงมา */
                 background: rgba(255,255,255,0.95);
                 padding: 20px;
                 border-radius: 10px;
@@ -69,7 +73,7 @@ def payment_page(reservation_id: str):
         """),
         Div(
             Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
-            H2("DRIVY Payment Dashboard", style="color: #fff; margin: 0;"),
+            H2("DRIVY", style="color: #fff; margin: 0;"),
             style="display: flex; align-items: center;",
             _class="header"
         ),
