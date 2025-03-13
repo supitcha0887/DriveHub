@@ -9,5 +9,5 @@ import showcar
 import reservation
 import payment
 
-if __name__ == "__routing__" :
+if __name__ == "__routing__":
     rt.run()

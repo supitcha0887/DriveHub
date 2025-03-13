@@ -1,121 +1,23 @@
 from fasthtml.common import *
 from routing import app, rt
-import BackEnd, time
-import datetime 
+import BackEnd, time, datetime
 
 company = BackEnd.company
 
 THEME_STYLE = """
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+* { box-sizing: border-box; }
 html, body {
     height: 100%;
-    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background: linear-gradient(135deg, #2196F3, #21CBF3);
-    background-size: cover;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #bbdefb, #e3f2fd);
 }
 """
 
 @rt('/reservation/form', methods=["GET"])
 def reservation_form(car_id: str = "", start_date: str = "", end_date: str = ""):
-    return Container(
-        Style(THEME_STYLE + """
-            body { padding: 20px; }
-            .form-container {
-                max-width: 500px;
-                margin: 100px auto 20px auto;
-                background: rgba(255,255,255,0.95);
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            }
-            label { display: block; margin-top: 10px; font-weight: bold; }
-            input {
-                width: 100%;
-                padding: 8px;
-                margin-top: 5px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-            }
-            button {
-                margin-top: 20px;
-                background: linear-gradient(45deg, #2196F3, #21CBF3);
-                color: #fff;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background 0.3s;
-            }
-            button:hover { background: linear-gradient(45deg, #1976D2, #1E88E5); }
-            .header {
-                width: 100%;
-                background: rgba(0,0,0,0.6);
-                padding: 10px 20px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 1000;
-                text-align: center;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            }
-            .header h2 {
-                color: #fff;
-                margin: 0;
-                font-size: 42px;
-                letter-spacing: 2px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            }
-            .header img {
-                width: 70px;
-                height: auto;
-                margin-right: 10px;
-            }
-        """),
-        
-        Div(
-            Div(
-                Img(src="/static/images/logo.png", alt="Drivy Logo", style="width: 70px; height: auto; margin-right: 10px;"),
-                H2("DRIVY", style="margin: 0;"),
-                style="display: flex; align-items: center;",
-                _class="header"
-            ),
-            Div(
-                H2("จองรถ", style="text-align: center;"),
-                Form(
-                    Input(name="car_id", value=car_id, type="hidden"),
-                    Input(name="start_date", type="hidden", value=start_date),
-                    P("วันที่เริ่มเช่า: " + start_date, style="font-size:18px;"),
-                    Input(name="end_date", type="hidden", value=end_date),
-                    P("วันที่สิ้นสุดเช่า: " + end_date, style="font-size:18px;"),
-                    Label("รหัสโปรโมชั่น (ถ้ามี):"),
-                    Input(name="promotion_code", type="text", placeholder="ระบุรหัสโปรโมชั่น"),
-                    Label("ต้องการประกันรถหรือไม่:"),
-                    Select(
-                        Option("No", value="No"),
-                        Option("Yes", value="Yes"),
-                        name="insurance_option",
-                        required=True
-                    ),
-                    Label("ต้องการคนขับหรือไม่:"),
-                    Select(
-                        Option("No", value="No"),
-                        Option("Yes", value="Yes"),
-                        name="driver_option",
-                        required=True
-                    ),
-                    Button("จองรถ", type="submit"),
-                    action="/reservation", method="POST"
-                ),
-                _class="form-container"
-            )
-        )
-    )
-
-@rt('/reservation', methods=["POST"])
-def save_reservation(car_id: str, start_date: str, end_date: str,
-                     promotion_code: str = "", insurance_option: str = "No", driver_option: str = "No"):
-    # ค้นหารถที่ต้องการจอง
     selected_car = None
     for car in company.get_cars():
         if car.get_id() == car_id:
@@ -124,62 +26,174 @@ def save_reservation(car_id: str, start_date: str, end_date: str,
     if not selected_car:
         return Container(
             Style(THEME_STYLE + "body { padding: 20px; }"),
-            H1("ไม่พบข้อมูลรถที่ต้องการจอง")
+            H1("Car not found")
         )
-    
+    try:
+        start_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        num_days = (end_dt - start_dt).days
+    except Exception as e:
+        return Container(
+            Style(THEME_STYLE + "body { padding: 20px; }"),
+            H1("Invalid date format")
+        )
+    return Container(
+        Style(THEME_STYLE + """
+body { padding: 20px; }
+.form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: rgba(255,255,255,0.95);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.car-details {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+.car-image img {
+    width: 100px;
+    height: auto;
+    border-radius: 5px;
+    border: 2px solid #90caf9;
+}
+.car-info {
+    font-size: 18px;
+    color: #333;
+}
+.car-info p {
+    margin: 5px 0;
+}
+label { 
+    display: block; 
+    margin-top: 10px; 
+    font-weight: bold; 
+    color: #0d47a1;
+}
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #90caf9;
+    border-radius: 5px;
+}
+button {
+    margin-top: 20px;
+    background: #42a5f5;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+button:hover { 
+    background: #1e88e5; 
+}
+"""),
+        Div(
+            H2("Reservation Form", style="text-align: center;"),
+            Div(
+                Div(
+                    Div(
+                        H3(selected_car.get_model()),
+                        P("License: " + selected_car.get_licensecar()),
+                        P("Price per day: " + str(selected_car.get_price())+"bath"),
+                        P("Status: " + selected_car.get_status()),
+                        P("Color: " + selected_car.get_color()),
+                        P("Seats: " + selected_car.get_seat_count()),
+                        P("Start Date: " + start_date),
+                        P("End Date: " + end_date),
+                        P("Total Days: " + str(num_days)),
+                        _class="car-info"
+                    ),
+                    _class="car-details"
+                ),
+                Form(
+                    Input(name="car_id", value=car_id, type="hidden"),
+                    Input(name="start_date", type="hidden", value=start_date),
+                    Input(name="end_date", type="hidden", value=end_date),
+                    Label("Promotion Code (if any):"),
+                    Input(name="promotion_code", type="text", placeholder="Enter promotion code"),
+                    Label("Do you want insurance:"),
+                    Select(
+                        Option("No", value="No"),
+                        Option("Yes", value="Yes"),
+                        name="insurance_option",
+                        required=True
+                    ),
+                    Label("Do you require a driver:"),
+                    Select(
+                        Option("No", value="No"),
+                        Option("Yes", value="Yes"),
+                        name="driver_option",
+                        required=True
+                    ),
+                    Button("Reserve Car", type="submit"),
+                    action="/reservation", method="POST"
+                )
+            ),
+            _class="form-container"
+        )
+    )
+
+@rt('/reservation', methods=["POST"])
+def save_reservation(car_id: str, start_date: str, end_date: str,
+                     promotion_code: str = "", insurance_option: str = "No", driver_option: str = "No"):
+    selected_car = None
+    for car in company.get_cars():
+        if car.get_id() == car_id:
+            selected_car = car
+            break
+    if not selected_car:
+        return Container(
+            Style(THEME_STYLE + "body { padding: 20px; }"),
+            H1("Car not found")
+        )
     renter = BackEnd.User(3001, "user1", "pass1", "renter", "U-111")
-    
-    # แปลงวันที่และคำนวณจำนวนวันที่เช่า
     try:
         start_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
     except Exception as e:
         return Container(
             Style(THEME_STYLE + "body { padding: 20px; }"),
-            H1("รูปแบบวันที่ไม่ถูกต้อง")
+            H1("Invalid date format")
         )
-    
     days = (end_dt - start_dt).days
     if days <= 0:
         return Container(
             Style(THEME_STYLE + "body { padding: 20px; }"),
-            H1("วันที่เริ่มเช่าต้องน้อยกว่าวันที่สิ้นสุดเช่า")
+            H1("Start date must be earlier than end date")
         )
-    
-    # คำนวณราคาเบื้องต้น = ราคา base * จำนวนวัน
     base_price = selected_car.get_price()
     price = base_price * days
-
     promotion_instance = None
-    promotion_info = "ไม่มีโปรโมชั่น"
+    promotion_info = "No promotion"
     discount_percent = 0
     promo_code = promotion_code.strip().upper()
-    if promo_code == "ABC":
-        discount_percent = 10
-    elif promo_code == "DEF":
-        discount_percent = 20
-    elif promo_code == "GHI":
-        discount_percent = 50
+    for promo in company.get_promotions():
+        if promo.check_promotion(promo_code):
+            discount_percent = promo.get_percent()
+            promotion_instance = promo
+            promotion_info = f"Discount: {discount_percent}%"
+            break
     if discount_percent > 0:
         discount = price * (discount_percent / 100)
-        price = price - discount
-        promotion_info = f"ลด {discount_percent}%"
-
-    # กำหนดประกันรถ (ถ้าเลือก Yes)
+        price -= discount
     insurance_instance = None
     if insurance_option == "Yes":
-        # ตัวอย่าง: เบี้ยประกัน 200 ต่อการจอง (ไม่คูณวัน)
         insurance_instance = BackEnd.Insurance("I1", "Basic Insurance", "Standard coverage", 200)
         price += insurance_instance.get_price()
-    
-    # กำหนดคนขับ (ถ้าเลือก Yes)
     driver_assigned = None
     if driver_option == "Yes":
         for user in company.get_users():
             if user.get_role() == "driver":
                 driver_assigned = user
                 break
-    
+    selected_car.status_car("unavailable")
     reservation_id = "R" + car_id + "_" + str(int(time.time()))
     reservation = BackEnd.Reservation(
         reservation_id, 
@@ -193,15 +207,12 @@ def save_reservation(car_id: str, start_date: str, end_date: str,
         insurance=insurance_instance
     )
     company.add_reservation(reservation)
-    
     return RedirectResponse("/payment?reservation_id=" + reservation.get_id(), status_code=302)
 
-# ตรวจสอบสถานะ Reservation (ตรวจสอบเฉพาะ admin approval)
 @rt('/reservation/status', methods=["GET"])
 def reservation_status(reservation_id: str):
     for res in company.get_reservations():
         if res.get_id() == reservation_id:
-            # หากไม่มี driver ถูกกำหนด (หมายความว่าไม่ได้ต้องการ driver)
             driver_approved = res.get_driver() is None or res.is_driver_approved()
             if res.is_admin_approved() and driver_approved:
                 if not res.is_paid():
@@ -209,23 +220,23 @@ def reservation_status(reservation_id: str):
                 else:
                     return Container(
                         Style(THEME_STYLE + "body { padding: 20px; }"),
-                        H2("จองสำเร็จ", style="color: green;"),
+                        H2("Reservation Successful", style="color: green;"),
                         P("Reservation ID: " + reservation_id)
                     )
             else:
-                admin_status = "Approved" if res.is_admin_approved() else "ยังไม่อนุมัติ"
-                # แสดงข้อความว่า driver ไม่จำเป็นถ้าไม่มีการกำหนด driver
-                driver_status = "Not required" if res.get_driver() is None else ("Approved" if res.is_driver_approved() else "ยังไม่อนุมัติ")
+                admin_status = "Approved" if res.is_admin_approved() else "Pending"
+                driver_status = "Not required" if res.get_driver() is None else ("Approved" if res.is_driver_approved() else "Pending")
                 return Container(
                     Style(THEME_STYLE + "body { padding: 20px; }"),
-                    H2("สถานะการจอง"),
+                    H2("Reservation Status"),
                     P("Reservation ID: " + reservation_id),
-                    P("สถานะอนุมัติจาก Admin: " + admin_status),
-                    P("สถานะอนุมัติจาก Driver: " + driver_status),
-                    P("กรุณาตรวจสอบใหม่ภายหลังเมื่อได้รับการอนุมัติ")
+                    P("Admin Approval: " + admin_status),
+                    P("Driver Approval: " + driver_status),
+                    P("Please check back later for updated status")
                 )
     return Container(
         Style(THEME_STYLE + "body { padding: 20px; }"),
-        H1("ไม่พบข้อมูล Reservation")
+        H1("Reservation not found")
     )
+
 serve()

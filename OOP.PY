@@ -103,7 +103,6 @@ class Reservation:
         self.__admin_approved = False
         self.__driver_approved = False
         self.__paid = False
-        self.__status = "Wait For Admin Approve"
     def get_id(self):
         return self.__id
     def get_renter(self):
@@ -120,11 +119,6 @@ class Reservation:
         return self.__insurance
     def get_price(self):
         return self.__price
-    def get_status(self):
-        return self.__status
-    def set_status(self,status):
-        self.__status = status
-
     def update_price(self):
         base_price = float(self.__car._Car__price)
         if self.__promotion:
@@ -257,31 +251,13 @@ class Company:
         return self.__reservations
     
 
-    def find_available_car(self, start_date, end_date):
+    def find_available(self, start_date, end_date):
         lst = []
         for car in self.__cars:
             print(f"Checking car: {car.get_model()} (ID: {car.get_id()})")
             is_available = True
             for reservation in self.__reservations:
                 if car == reservation.get_car():
-                    print(f"  Against reservation: {reservation.get_id()} (Start: {reservation.get_start_date()}, End: {reservation.get_end_date()})")
-                    if (start_date >= reservation.get_start_date() and start_date <= reservation.get_end_date()):
-                        is_available = False
-                        break
-                    if (end_date > reservation.get_start_date() and end_date <= reservation.get_end_date()):
-                        is_available = False
-                        break
-            if is_available:
-                lst.append(car)
-        return lst
-    
-    def find_available_car_type(self,model, start_date, end_date):
-        lst = []
-        for car in self.__cars:
-            print(f"Checking car: {car.get_model()} (ID: {car.get_id()})")
-            is_available = True
-            for reservation in self.__reservations:
-                if (car == reservation.get_car() and model == car.get_model()):
                     print(f"  Against reservation: {reservation.get_id()} (Start: {reservation.get_start_date()}, End: {reservation.get_end_date()})")
                     if (start_date >= reservation.get_start_date() and start_date <= reservation.get_end_date()):
                         is_available = False
