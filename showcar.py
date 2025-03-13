@@ -41,10 +41,8 @@ html, body {{
 }}
 .content {{
     margin-top: 120px;
-    display: flex;
-    flex-direction: column;
-    width: 40%;
-    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 25px;
     padding: 20px;
 }}
@@ -82,6 +80,7 @@ html, body {{
     display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
 }}
 .card-details h3 {{
     margin: 0 0 10px;
