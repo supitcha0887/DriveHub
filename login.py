@@ -230,6 +230,4 @@ def login(login_username: str, login_password: str):
     else:
         return get(error_message="ข้อมูลเข้าสู่ระบบผิดพลาด กรุณาลองใหม่อีกครั้ง")
 
-
-
 serve()
